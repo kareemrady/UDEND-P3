@@ -45,13 +45,13 @@ staging_songs_table_create = """
     CREATE TABLE IF NOT EXISTS staging_songs (
         sts_num_songs int,
         sts_artist_id varchar,
-        sts_artist_latitude numeric,
-        sts_artist_longitude numeric,
+        sts_artist_latitude float,
+        sts_artist_longitude float,
         sts_artist_location varchar,
         sts_artist_name varchar,
         sts_song_id varchar,
         sts_title varchar,
-        sts_duration numeric,
+        sts_duration float,
         sts_year int                                        
     );
 """
