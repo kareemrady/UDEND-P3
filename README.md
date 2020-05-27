@@ -1,5 +1,4 @@
 # UDEND-P3
-## PROJECT 1
 ### ETL using Amazon Redshift
 
 **Sparkify is a music streaming startup , they have been collecting data about user activity on their system.**
