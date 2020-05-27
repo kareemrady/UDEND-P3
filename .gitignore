@@ -132,4 +132,4 @@ dmypy.json
 *.cfg
 /Infra/*.tfvars
 /Infra/.Terraform/*
-
+/Infra/*.tfstate
