@@ -130,4 +130,6 @@ dmypy.json
 
 #config
 *.cfg
+/Infra/*.tfvars
+/Infra/.Terraform/*
 

@@ -43,16 +43,16 @@ staging_events_table_create = """
 
 staging_songs_table_create = """
     CREATE TABLE IF NOT EXISTS staging_songs (
-        sts_num_songs int,
-        sts_artist_id varchar,
-        sts_artist_latitude float,
-        sts_artist_longitude float,
-        sts_artist_location varchar,
-        sts_artist_name varchar,
-        sts_song_id varchar,
-        sts_title varchar,
-        sts_duration float,
-        sts_year int                                        
+        num_songs int,
+        artist_id varchar,
+        artist_latitude numeric,
+        artist_longitude numeric,
+        artist_location varchar,
+        artist_name varchar,
+        song_id varchar,
+        title varchar,
+        duration numeric,
+        year int                                        
     );
 """
 
@@ -102,7 +102,7 @@ artist_table_create = """
 
 time_table_create = """
     CREATE TABLE IF NOT EXISTS time (
-        time_start timestamp NOT NULL distkey, 
+        start_time timestamp NOT NULL distkey, 
         hour int,
         day int,
         week int,
@@ -138,16 +138,16 @@ songplay_table_insert = ("""
         TIMESTAMP 'epoch' + ste.ste_ts/1000 * INTERVAL '1 Second' AS sp_start_time,
         ste.ste_user_id AS sp_user_id,
         ste.ste_level AS  sp_level,
-        sts.sts_song_id AS sp_song_id,
-        sts.sts_artist_id AS sp_artist_id,
+        sts.song_id AS sp_song_id,
+        sts.artist_id AS sp_artist_id,
         ste.ste_session_id AS sp_session_id,
         ste.ste_location AS sp_location,
         ste.ste_useragent AS sp_useragent
     
       FROM staging_songs sts 
       JOIN staging_events ste
-      ON sts.sts_title = ste.ste_song AND (sts.sts_artist_name = ste.ste_artist)
-    
+      ON sts.title = ste.ste_song AND (sts.artist_name = ste.ste_artist)
+      WHERE ste.ste_page = 'NextSong'    
 """)
 
 user_table_insert = ("""
@@ -170,11 +170,11 @@ song_table_insert = ("""
        s_song_id, s_title, s_artist_id,
         s_year, s_duration
     ) SELECT 
-        sts.sts_song_id AS s_song_id,
-        sts.sts_title AS s_title,
-        sts.sts_artist_id AS s_artist_id,
-        sts.sts_year AS s_year,
-        sts.sts_duration AS s_duration
+        sts.song_id AS s_song_id,
+        sts.title AS s_title,
+        sts.artist_id AS s_artist_id,
+        sts.year AS s_year,
+        sts.duration AS s_duration
         
      FROM staging_songs sts
 """)
@@ -184,28 +184,29 @@ artist_table_insert = ("""
        a_artist_id, a_name, a_location,
        a_latitude, a_longitude
     ) SELECT 
-        sts.sts_artist_id AS a_artist_id,
-        sts.sts_artist_name AS a_name,
-        sts.sts_location AS a_location,
-        sts.sts_latitude AS a_latitude,
-        sts.sts_longitude AS a_longitude
+        sts.artist_id AS a_artist_id,
+        sts.artist_name AS a_name,
+        sts.artist_location AS a_location,
+        sts.artist_latitude AS a_latitude,
+        sts.artist_longitude AS a_longitude
      FROM staging_songs sts
 """)
 
 time_table_insert = ("""
     INSERT INTO time (
-        time_start, hour, day,
-        weekofyear, month, year,
+        start_time, hour, day,
+        week, month, year,
         weekday
     ) SELECT 
         TIMESTAMP 'epoch' + ste.ste_ts/1000 * INTERVAL '1 Second' AS start_time,
-        DATE_PART('hour', start_time) AS hour,
-        DATE_PART('day', 'start_time') AS day,
-        DATE_PART('week', 'start_time') AS weekofyear,
-        DATE_PART('month', 'start_time') AS month,
-        DATE_PART('year', 'start_time') AS year,
-        DATE_PART(weekday, 'start_time') AS weekday
-     FROM staging_events as ste
+        DATE_PART(hour, start_time) AS hour,
+        DATE_PART(day, start_time) AS day,
+        DATE_PART(week, start_time) AS week,
+        DATE_PART(month, start_time) AS month,
+        DATE_PART(year, start_time) AS year,
+        DATE_PART(weekday, start_time) AS weekday
+     FROM staging_events ste
+     WHERE ste.ste_page = 'NextSong'
 """)
 
 # QUERY LISTS
